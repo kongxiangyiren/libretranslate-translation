@@ -16,6 +16,10 @@
     "translator"
   ],
   "koishi": {
+    "description": {
+      "en": "libretranslate-translation",
+      "zh": "libretranslate 自建 中英文翻译。[使用方法](https://www.npmjs.com/package/koishi-plugin-libretranslate-translation)。"
+    },
     "service": {
       "implements": [
         "translator"
@@ -32,5 +36,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kongxiangyiren/libretranslate-translation.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.com"
   }
 }
