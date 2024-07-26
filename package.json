@@ -9,14 +9,28 @@
     "dist"
   ],
   "license": "MIT",
-  "scripts": {},
   "keywords": [
     "chatbot",
     "koishi",
-    "plugin"
+    "plugin",
+    "translator"
   ],
-  "devDependencies": {},
+  "koishi": {
+    "service": {
+      "implements": [
+        "translator"
+      ]
+    }
+  },
   "peerDependencies": {
     "koishi": "^4.17.9"
+  },
+  "homepage": "https://github.com/kongxiangyiren/libretranslate-translation#readme",
+  "bugs": {
+    "url": "https://github.com/kongxiangyiren/libretranslate-translation/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kongxiangyiren/libretranslate-translation.git"
   }
 }
