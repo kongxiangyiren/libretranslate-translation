@@ -12,6 +12,7 @@
     "esModuleInterop": true,
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
+    "outFile": "./lib/",
     "jsxImportSource": "@satorijs/element",
     "types": [
       "node",

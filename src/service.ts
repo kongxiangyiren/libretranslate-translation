@@ -1,11 +1,11 @@
 import Translator from "./translator";
-import { CF } from "./";
+import { Config } from "./";
 import { Logger } from "koishi";
 
-export class UniversalTranslation extends Translator<CF> {
+export class UniversalTranslation extends Translator<Config> {
   declare logger: Logger;
 
-  async translate(options?: Translator.Result) {
+  async translate(options?: Translator.Result): Promise<string> {
     const q = options?.input;
     const to = options?.target || "zh";
     try {
@@ -29,6 +29,15 @@ export class UniversalTranslation extends Translator<CF> {
       this.logger.error(
         `API request failed for ${this.config.LibreTranslateUrl}: ${error.message}`
       );
+    }
+  }
+
+  async getLanguages(url: string) {
+    try {
+      const responseData = await this.ctx.http.get(url);
+      return responseData;
+    } catch (error: any) {
+      this.logger.error(`API request failed for ${url}: ${error.message}`);
     }
   }
 }

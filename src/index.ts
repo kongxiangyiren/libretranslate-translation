@@ -1,27 +1,11 @@
-import { Context, Schema } from "koishi";
+import { Context } from "koishi";
 import { UniversalTranslation } from "./service";
+import { Config } from "./config";
+export * from "./config";
 
 export const name = "libretranslate-translation";
 
-export interface CF {
-  LibreTranslateUrl: string;
-  LibreTranslateKey?: string;
-  defaultTargetLang: string;
-}
-
-export const Config: Schema<CF> = Schema.object({
-  LibreTranslateUrl: Schema.string().description(
-    "LibreTranslate 的地址，如：https://libretranslate.com/translate"
-  ),
-  LibreTranslateKey: Schema.string().description("LibreTranslate 的key,如果有"),
-  defaultTargetLang: Schema.string()
-    .description("默认的目标语言代码（'en' 或 'zh'）")
-    .default("en"),
-});
-
-const languageMap = ["zh", "en"];
-
-export function apply(ctx: Context, config: CF) {
+export function apply(ctx: Context, config: Config) {
   const translation = new UniversalTranslation(ctx, config);
 
   ctx
@@ -36,10 +20,10 @@ export function apply(ctx: Context, config: CF) {
       if (!text) {
         return "请输入要翻译的文本...";
       }
-
-      const to = options?.to
-        ? languageMap[options.to] || options.to
-        : config.defaultTargetLang;
+      if (!config.LibreTranslateUrl) {
+        return "请先配置LibreTranslateUrl";
+      }
+      const to = options?.to ? options.to : config.defaultTargetLang;
 
       const result = await translation.translate({
         input: text,
@@ -47,4 +31,28 @@ export function apply(ctx: Context, config: CF) {
       });
       return result;
     });
+
+  ctx.command("libretranslate-translation/查询支持语言").action(async () => {
+    if (!config.LibreTranslateUrl) {
+      return "请先配置LibreTranslateUrl";
+    }
+
+    const url =
+      config.LibreTranslateUrl.slice(
+        0,
+        config.LibreTranslateUrl.lastIndexOf("/")
+      ) + "/languages";
+
+    const languages = await translation.getLanguages(url);
+
+    return (
+      `说明：[{
+code:语言代码
+name:可读的语言名称(英文)
+targets	[
+支持翻译的目标语言代码
+]
+}]\n详情：` + JSON.stringify(languages, null, 2)
+    );
+  });
 }
