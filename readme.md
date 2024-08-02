@@ -11,7 +11,7 @@ version: "3.9"
 services:
   libretranslate:
     # 只要中英翻译
-    command: '--load-only zh,en'
+    command: "--load-only zh,en"
     image: libretranslate/libretranslate:latest
     restart: unless-stopped
     ports:
@@ -31,3 +31,16 @@ services:
 #   1panel-network:
 #     external: true
 ```
+
+<style>
+  .language-yaml {
+  position: relative;
+  display: block !important;
+  overflow-x: auto;
+  background: #21252b !important;
+  color: #c7eae5 !important;
+  padding: 10px 5px 10px 15px !important;
+  box-shadow: 0 10px 30px 0px rgb(0 0 0 / 40%);
+  border-radius: 10px;
+}
+</style>

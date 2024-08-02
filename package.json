@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-libretranslate-translation",
   "description": "LibreTranslate 自建翻译",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -41,6 +41,7 @@
     "registry": "https://registry.npmjs.com"
   },
   "dependencies": {
-    "@koishijs/translator": "^1.1.1"
+    "@koishijs/translator": "^1.1.1",
+    "github-markdown-css": "^5.6.1"
   }
 }
