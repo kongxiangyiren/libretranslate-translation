@@ -1,58 +1,60 @@
-import { Context } from "koishi";
-import { UniversalTranslation } from "./service";
-import { Config } from "./config";
-export * from "./config";
+import { Logger, Schema } from "koishi";
 
-export const name = "libretranslate-translation";
+import Translator from "@koishijs/translator";
 
-export function apply(ctx: Context, config: Config) {
-  const translation = new UniversalTranslation(ctx, config);
+class LibretranslateTranslation extends Translator<LibretranslateTranslation.Config> {
+  static inject = ["http"];
+  declare logger: Logger;
 
-  ctx
-    .command("libretranslate-translation <text:text>", "翻译命令")
-    .alias("翻译")
-    .usage("注意：参数请写在最前面，不然会被当成 text 的一部分！")
-    .option("to", "-t [language] 指定翻译的目标语言", {
-      fallback: config.defaultTargetLang,
-    })
-    .example("翻译 -t zh Hello World")
-    .action(async ({ options }, text) => {
-      if (!text) {
-        return "请输入要翻译的文本...";
-      }
-      if (!config.LibreTranslateUrl) {
-        return "请先配置LibreTranslateUrl";
-      }
-      const to = options?.to ? options.to : config.defaultTargetLang;
+  name = "libretranslate-translation";
 
-      const result = await translation.translate({
-        input: text,
-        target: to,
-      });
-      return result;
-    });
+  async translate(options?: Translator.Result): Promise<string> {
+    const q = options?.input;
+    const to = options?.target || "zh";
+    const source = options?.source || "auto";
+    try {
+      const responseData = await this.ctx.http.post(
+        this.config.LibreTranslateUrl,
+        {
+          q,
+          source: source,
+          target: to,
+          format: "text",
+          alternatives: 3,
+          api_key: this.config.LibreTranslateKey || "",
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
-  ctx.command("libretranslate-translation/查询支持语言").action(async () => {
-    if (!config.LibreTranslateUrl) {
-      return "请先配置LibreTranslateUrl";
+      return responseData.translatedText;
+    } catch (error: any) {
+      this.logger.error(
+        `API request failed for ${this.config.LibreTranslateUrl}: ${error.message}`
+      );
     }
+  }
+}
 
-    const url =
-      config.LibreTranslateUrl.slice(
-        0,
-        config.LibreTranslateUrl.lastIndexOf("/")
-      ) + "/languages";
+namespace LibretranslateTranslation {
+  export interface Config extends Translator.Config {
+    LibreTranslateUrl: string;
+    LibreTranslateKey?: string;
+    defaultTargetLang: string;
+  }
 
-    const languages = await translation.getLanguages(url);
-
-    return (
-      `说明：[{
-code:语言代码
-name:可读的语言名称(英文)
-targets	[
-支持翻译的目标语言代码
-]
-}]\n详情：` + JSON.stringify(languages, null, 2)
-    );
+  export const Config: Schema<Config> = Schema.object({
+    LibreTranslateUrl: Schema.string().description(
+      "LibreTranslate 的地址，如：https://libretranslate.com/translate"
+    ),
+    LibreTranslateKey: Schema.string().description(
+      "LibreTranslate 的key,如果有"
+    ),
+    defaultTargetLang: Schema.string()
+      .description("默认的目标语言代码（'en' 或 'zh'等）")
+      .default("en"),
   });
 }
+
+export default LibretranslateTranslation;
